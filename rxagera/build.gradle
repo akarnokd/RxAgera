@@ -43,7 +43,7 @@ android {
 }
 
 repositories {
-    mavenCentral()
+    // mavenCentral()
     jcenter()
 }
 
@@ -83,16 +83,8 @@ install {
 
         developers {
             developer {
-                id 'JakeWharton'
-                name 'Jake Wharton'
-            }
-            developer {
-                id 'mttkay'
-                name 'Matthias Käppler'
-            }
-            developer {
-                id 'dlew'
-                name 'Dan Lew'
+                id 'akarnokd'
+                name 'David Karnok'
             }
         }
     }
