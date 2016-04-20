@@ -18,5 +18,3 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
     distributionUrl = 'https://services.gradle.org/distributions/gradle-2.12-all.zip'
 }
-
-// apply plugin: 'android-reporting'
