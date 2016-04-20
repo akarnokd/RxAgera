@@ -2,6 +2,12 @@
 
 Convert between RxJava and Agera reactive base types
 
+# Dependency
+
+```
+compile 'com.github.akarnokd:rxagera:0.9.0'
+```
+
 # Usage
 
 ```java

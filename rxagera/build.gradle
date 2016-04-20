@@ -141,3 +141,5 @@ if (project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePass
     sync.user = project.sonatypeUsername
     sync.password = project.sonatypePassword
 }
+
+apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
