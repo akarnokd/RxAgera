@@ -6,14 +6,11 @@ import android.support.annotation.NonNull;
 import com.google.android.agera.Condition;
 import com.google.android.agera.Function;
 import com.google.android.agera.Observable;
-import com.google.android.agera.Predicate;
 import com.google.android.agera.Receiver;
 import com.google.android.agera.Supplier;
 import com.google.android.agera.Updatable;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Fluent API entry point which is based on Google/Agera.
@@ -67,7 +64,7 @@ public abstract class Agera implements Observable {
      * @param generator the generator that receives each updatable
      * @return the Agera instance
      */
-    public static Agera generate(Receiver<Updatable> generator) {
+    public static Agera generate(@NonNull Receiver<Updatable> generator) {
         return new AgeraGenerate(generator);
     }
 
@@ -79,7 +76,7 @@ public abstract class Agera implements Observable {
      * @param generator the generator that receives each updatable and condition pairs
      * @return the Agera instance
      */
-    public static Agera generate(BiReceiver<Updatable, Condition> generator) {
+    public static Agera generate(@NonNull BiReceiver<Updatable, Condition> generator) {
         return new AgeraGenerateIf(generator);
     }
 
@@ -89,59 +86,140 @@ public abstract class Agera implements Observable {
      * @param supplier the supplier of Observables
      * @return the Agera instance
      */
-    public static Agera defer(Supplier<? extends Observable> supplier) {
+    public static Agera defer(@NonNull Supplier<? extends Observable> supplier) {
         return new AgeraDefer(supplier);
+    }
+
+    /**
+     * Merges the update() signals from all source Observables.
+     * @param sources the source Observables
+     * @return the new Agera instance
+     */
+    public static Agera merge(@NonNull Observable... sources) {
+        if (sources.length == 0) {
+            return empty();
+        } else
+        if (sources.length == 1) {
+            return wrap(sources[0]);
+        }
+        return new AgeraMerge(sources);
     }
 
     // ************************************************************************
     // Instance methods
     // ************************************************************************
 
+    /**
+     * Makes sure the addUpdatable and removeUpdatable for this Agera is called
+     * on the main thread.
+     * @return the Agera instance
+     */
     public final Agera subscribeOnMain() {
         return subscribeOn(Looper.getMainLooper());
     }
 
-    public final Agera subscribeOn(Executor executor) {
+    /**
+     * Makes sure the addUpdatable and removeUpdatable for this Agera is called
+     * on the specified Executor.
+     * @param executor the Executor to use
+     * @return the Agera instance
+     */
+    public final Agera subscribeOn(@NonNull Executor executor) {
         return new AgeraSubscribeOnExecutor(this, executor);
     }
 
-    public final Agera subscribeOn(Looper looper) {
+    /**
+     * Makes sure the addUpdatable and removeUpdatable for this Agera is called
+     * on the specified Looper.
+     * @param looper the looper to use
+     * @return the Agera instance
+     */
+    public final Agera subscribeOn(@NonNull Looper looper) {
         return new AgeraSubscribeOnLooper(this, looper);
     }
 
+    /**
+     * Makes sure update() signals are called on the main thread.
+     * @return the Agera instance
+     */
     public final Agera observeOnMain() {
         return observeOn(Looper.getMainLooper());
     }
 
-    public final Agera observeOn(Executor executor) {
+    /**
+     * Makes sure update() signals are called on the specified Executor.
+     * @param executor the Executor to use
+     * @return the Agera instance
+     */
+    public final Agera observeOn(@NonNull Executor executor) {
         return new AgeraObserveOnExecutor(this, executor);
     }
 
-    public final Agera observeOn(Looper looper) {
+    /**
+     * Makes sure update() signals are called on the specified Looper.
+     * @param looper the Looper to use
+     * @return the Agera instance
+     */
+    public final Agera observeOn(@NonNull Looper looper) {
         return new AgeraObserveOnLooper(this, looper);
     }
 
+    /**
+     * Skips the first N update() signals.
+     * @param n the number of signals to skip
+     * @return the Agera instance
+     */
     public final Agera skip(long n) {
         return new AgeraSkip(this, n);
     }
 
+    /**
+     * Takes the first N update() signals and disconnects the Updatable.
+     * @param limit the number of signals to let through
+     * @return the Agera instance
+     */
     public final Agera take(long limit) {
         return new AgeraTake(this, limit);
     }
 
-    public final Agera filter(Condition condition) {
+    /**
+     * Let's the update() signal pass through if the condition holds.
+     * @param condition the condition to check before each update() signal is forwarded
+     * @return the Agera instance
+     */
+    public final Agera filter(@NonNull Condition condition) {
         return new AgeraFilter(this, condition);
     }
 
-    public final Agera flatMap(Supplier<Observable> mapper) {
+    /**
+     * For each input update() signal, asks the Supplier for an Observable,
+     * registers with it and merges update() signals from these inner Observables
+     * into a sequence of update() calls.
+     * @param mapper the supplier that returns an Observable, called for each main update() signal
+     * @return the Agera instance
+     */
+    public final Agera flatMap(@NonNull Supplier<Observable> mapper) {
         return new AgeraFlatMap(this, mapper);
     }
 
-    public final <U> U as(Function<? super Agera, ? extends U> converter) {
+    /**
+     * Allows a fluent conversion from this Agera into an arbitrary type via a converter function.
+     * @param converter the converter, receives this Agera as its parameter
+     * @param <U> the result type
+     * @return the result returned by the converter function
+     */
+    public final <U> U as(@NonNull Function<? super Agera, ? extends U> converter) {
         return converter.apply(this);
     }
 
-    public final Agera compose(Function<? super Agera, ? extends Agera> composer) {
+    /**
+     * Allows fluent composition via a composer function that receives this Agera
+     * instance and must return some Agera instance.
+     *
+     * @param composer the function that receives this Agera and must return some Agera instance
+     * @return the Agera returned by the composer function
+     */
+    public final Agera compose(@NonNull Function<? super Agera, ? extends Agera> composer) {
         return as(composer);
     }
 }
