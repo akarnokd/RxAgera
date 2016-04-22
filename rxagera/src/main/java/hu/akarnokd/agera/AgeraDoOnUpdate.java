@@ -21,39 +21,37 @@ import com.google.android.agera.Observable;
 import com.google.android.agera.Updatable;
 
 /**
- * Skips the first N signals.
+ * Executes a Runnable action on an update() signal.
  */
-final class AgeraSkip extends AgeraSource<SkipUpdatable> {
-    final long n;
+final class AgeraDoOnUpdate extends AgeraSource<DoOnUpdateUpdatable> {
+    final Runnable run;
 
-    AgeraSkip(Observable source, long n) {
+    AgeraDoOnUpdate(@NonNull Observable source, @NonNull Runnable run) {
         super(source);
-        this.n = n;
+        this.run = run;
     }
 
     @NonNull
     @Override
-    protected SkipUpdatable createWrapper(@NonNull Updatable updatable) {
-        return new SkipUpdatable(updatable, n);
+    protected DoOnUpdateUpdatable createWrapper(@NonNull Updatable updatable) {
+        return new DoOnUpdateUpdatable(updatable, run);
     }
 }
 
-final class SkipUpdatable implements Updatable {
+final class DoOnUpdateUpdatable implements Updatable {
     final Updatable actual;
-    long remaining;
 
-    SkipUpdatable(Updatable actual, long remaining) {
+    final Runnable run;
+
+    DoOnUpdateUpdatable(Updatable actual, Runnable run) {
         this.actual = actual;
-        this.remaining = remaining;
+        this.run = run;
     }
 
     @Override
     public void update() {
-        long r = remaining;
-        if (r == 0L) {
-            actual.update();
-            return;
-        }
-        remaining = r - 1;
+        run.run();
+
+        actual.update();
     }
 }

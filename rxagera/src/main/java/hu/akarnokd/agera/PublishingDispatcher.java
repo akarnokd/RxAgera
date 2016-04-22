@@ -17,43 +17,35 @@ package hu.akarnokd.agera;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.agera.Observable;
 import com.google.android.agera.Updatable;
+import com.google.android.agera.UpdateDispatcher;
 
 /**
- * Skips the first N signals.
+ * Dispatches update() signals to currently registered Updatables and provides
+ * fluent API.
  */
-final class AgeraSkip extends AgeraSource<SkipUpdatable> {
-    final long n;
-
-    AgeraSkip(Observable source, long n) {
-        super(source);
-        this.n = n;
-    }
+public final class PublishingDispatcher extends AgeraTracking<Updatable> implements UpdateDispatcher {
 
     @NonNull
     @Override
-    protected SkipUpdatable createWrapper(@NonNull Updatable updatable) {
-        return new SkipUpdatable(updatable, n);
+    protected Updatable createWrapper(@NonNull Updatable updatable) {
+        return updatable;
     }
-}
 
-final class SkipUpdatable implements Updatable {
-    final Updatable actual;
-    long remaining;
+    @Override
+    protected void onAdd(@NonNull Updatable updatable, @NonNull Updatable wrapper) {
 
-    SkipUpdatable(Updatable actual, long remaining) {
-        this.actual = actual;
-        this.remaining = remaining;
+    }
+
+    @Override
+    protected void onRemove(@NonNull Updatable updatable, @NonNull Updatable wrapper) {
+
     }
 
     @Override
     public void update() {
-        long r = remaining;
-        if (r == 0L) {
-            actual.update();
-            return;
+        for (Updatable u : map.values()) {
+            u.update();
         }
-        remaining = r - 1;
     }
 }

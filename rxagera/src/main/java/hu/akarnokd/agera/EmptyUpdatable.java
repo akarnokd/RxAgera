@@ -15,45 +15,35 @@
  */
 package hu.akarnokd.agera;
 
-import android.support.annotation.NonNull;
-
 import com.google.android.agera.Observable;
 import com.google.android.agera.Updatable;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * Skips the first N signals.
+ * An empty updatable that supports cancellation via Closeable interface
  */
-final class AgeraSkip extends AgeraSource<SkipUpdatable> {
-    final long n;
+final class EmptyUpdatable
+extends AtomicBoolean
+implements Updatable, Closeable {
+    Observable parent;
 
-    AgeraSkip(Observable source, long n) {
-        super(source);
-        this.n = n;
-    }
-
-    @NonNull
-    @Override
-    protected SkipUpdatable createWrapper(@NonNull Updatable updatable) {
-        return new SkipUpdatable(updatable, n);
-    }
-}
-
-final class SkipUpdatable implements Updatable {
-    final Updatable actual;
-    long remaining;
-
-    SkipUpdatable(Updatable actual, long remaining) {
-        this.actual = actual;
-        this.remaining = remaining;
+    EmptyUpdatable(Observable parent) {
+        this.parent = parent;
     }
 
     @Override
     public void update() {
-        long r = remaining;
-        if (r == 0L) {
-            actual.update();
-            return;
+        // deliveberately no op
+    }
+
+    @Override
+    public void close() {
+        if (compareAndSet(false, true)) {
+            parent.removeUpdatable(this);
+            parent = null;
         }
-        remaining = r - 1;
     }
 }
