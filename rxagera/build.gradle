@@ -48,12 +48,11 @@ repositories {
 }
 
 dependencies {
+    compile 'com.android.support:support-annotations:23.0.3'
     compile 'io.reactivex:rxjava:1.1.3'
     compile 'com.google.android.agera:agera:1.0.0-RC1'
 
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.10.19'
-    testCompile 'org.robolectric:robolectric:3.0'
 }
 
 // Create source/javadoc artifacts for publishing
@@ -143,3 +142,7 @@ if (project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePass
 }
 
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+
+afterEvaluate {
+    androidJavadocs.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
+}
