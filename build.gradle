@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.0.0'
     }
 }
 
@@ -12,6 +12,16 @@ ext {
     compileSdkVersion = 23
     buildToolsVersion = '23.0.3'
     sourceCompatibility = JavaVersion.VERSION_1_7
+
+    mavenPluginVersion = '1.3'
+    bintrayPluginVersion = '1.2'
+    buildInfoPluginVersion = '3.1.1'
+
+    androidSupportVersion = '23.3.0'
+    ageraVersion = '1.0.0-RC1'
+    rxJavaVersion = '1.1.3'
+
+    junitVersion = '4.12'
 }
 
 task wrapper(type: Wrapper) {
