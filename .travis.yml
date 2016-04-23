@@ -15,11 +15,11 @@ android:
 sudo: false
 
 # FIXME commit the file with 755 from Linux eventually
-before_install:
- - chmod +x gradle/buildViaTravis.sh
+# before_install:
+#  - chmod +x gradle/buildViaTravis.sh
  
 # script for build and release via Travis to Bintray
-script: gradle/buildViaTravis.sh
+# script: gradle/buildViaTravis.sh
 
 notifications:
   email: false
