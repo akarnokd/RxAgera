@@ -32,7 +32,7 @@ UpdateDispatcher ud = Observables.updateDispatcher();
 
 rx.Observable rx = toRxObservable(ud);
 
-rs.subscribe(() -> System.out.println("Something happened!"));
+rx.subscribe(() -> System.out.println("Something happened!"));
 
 ud.update();
 ```
